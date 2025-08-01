@@ -86,13 +86,18 @@ network-monitoring/
    ```bash
    # Network scan every 15 minutes
    */15 * * * * /home/colton/network-monitoring/scripts/network-monitor.sh
-   
+
    # Check critical devices every 5 minutes  
    */5 * * * * /home/colton/network-monitoring/scripts/device-alert.sh
-   
-   # Daily cleanup - compress old logs and delete ancient ones
+
+   # Daily log compression (after 7 days)
    0 2 * * * find /home/colton/network-monitoring/logs -name "*.log" -mtime +7 -exec gzip {} \;
-   0 3 * * * find /home/colton/network-monitoring/logs -name "*.log.gz" -mtime +30 -delete
+
+   # Weekly cleanup (delete compressed logs after 30 days)  
+   0 3 * * 0 find /home/colton/network-monitoring/logs -name "*.log.gz" -mtime +30 -delete
+
+   # Daily log size check (prevent any single log from getting too large)
+   0 1 * * * find /home/colton/network-monitoring/logs -name "*.log" -size +50M -exec mv {} {}.large \;
    ```
 
 ## 🛡️ SSH Security Setup
